@@ -10,7 +10,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'AuditdashboardWebPartStrings';
 import Auditdashboard from './components/Auditdashboard';
-import { IAuditdashboardProps } from './components/IAuditdashboardProps';
+//import { IAuditdashboardProps } from './components/IAuditdashboardProps';
 
 export interface IAuditdashboardWebPartProps {
   description: string;
