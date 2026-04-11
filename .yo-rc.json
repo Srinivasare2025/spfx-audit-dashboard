@@ -1,0 +1,19 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "useGulp": true,
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.2",
+    "sdksVersions": {},
+    "version": "1.22.2",
+    "libraryName": "audit-dashboard-sln",
+    "libraryId": "a3d97cdd-92e0-409d-bed3-f0a037d54891",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "audit-dashboard-sln",
+    "solutionShortDescription": "audit-dashboard-sln description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "audit-dashboard-sln-client-side-solution",
+    "id": "a3d97cdd-92e0-409d-bed3-f0a037d54891",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.22.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "audit-dashboard-sln description"
+      },
+      "longDescription": {
+        "default": "audit-dashboard-sln description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "audit-dashboard-sln Feature",
+        "description": "The feature that activates elements of the audit-dashboard-sln solution.",
+        "id": "405ec2e5-dac3-4189-97e3-0605835adc1a",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/audit-dashboard-sln.sppkg"
+  }
+}

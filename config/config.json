@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "auditdashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/auditdashboard/AuditdashboardWebPart.js",
+          "manifest": "./src/webparts/auditdashboard/AuditdashboardWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AuditdashboardWebPartStrings": "lib/webparts/auditdashboard/loc/{locale}.js"
+  }
+}
