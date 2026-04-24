@@ -16,12 +16,21 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
 
     return (
       <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
-        <div className={styles.welcome}>
-          <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
-          <h2>Well done, {escape(userDisplayName)}!</h2>
-          <div>{environmentMessage}</div>
-          <div>Web part property value: <strong>{escape(description)}</strong></div>
-          <div>Web part title: <strong>{escape(title)}</strong></div>
+         <div className={styles.container}>
+          <h1>{title}</h1>
+          <div>
+            <h3>Total Audits</h3>
+            <p>10</p>
+          </div>
+          <div>
+            <h3>Pending</h3>
+            <p>4</p>
+          </div>
+          <div>
+            <h3>Completed</h3>
+            <p>6</p>
+          </div>
+        
         </div>
       </section>
     );
