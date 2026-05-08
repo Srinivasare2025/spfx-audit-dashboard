@@ -13,7 +13,7 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
       hasTeamsContext,
       userDisplayName
     } = this.props;
-
+/*
     return (
       <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
         <div className={styles.welcome}>
@@ -24,6 +24,38 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
           <div>Web part title: <strong>{escape(title)}</strong></div>
         </div>
       </section>
+    );
+    */
+    return (
+      <div className={styles.auditDashboard}>
+
+        <h1>{this.props.title}</h1>
+
+        <div className={styles.cardContainer}>
+
+          <div className={styles.card}>
+            <h3>Total Audits</h3>
+            <p>25</p>
+          </div>
+
+          <div className={styles.card}>
+            <h3>Pending</h3>
+            <p>10</p>
+          </div>
+
+          <div className={styles.card}>
+            <h3>Approved</h3>
+            <p>12</p>
+          </div>
+
+          <div className={styles.card}>
+            <h3>Rejected</h3>
+            <p>3</p>
+          </div>
+
+        </div>
+
+      </div>
     );
   }
 }

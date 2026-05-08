@@ -32,3 +32,31 @@
     }
   }
 }
+
+.auditDashboard {
+  padding: 20px;
+}
+
+.cardContainer {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: bold;
+  color: #0078d4;
+}
