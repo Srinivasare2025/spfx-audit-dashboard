@@ -1,3 +1,4 @@
+import type { SPFI } from '../SPFIType';
 export interface IAuditdashboardProps {
   description: string;
   title: string;
@@ -5,4 +6,5 @@ export interface IAuditdashboardProps {
   environmentMessage: string;
   hasTeamsContext: boolean;
   userDisplayName: string;
+  sp: SPFI;
 }
