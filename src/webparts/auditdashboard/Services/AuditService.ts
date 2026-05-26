@@ -11,7 +11,15 @@ export default class AuditService {
     try {
       const items = await this._sp.web.lists
         .getByTitle('AuditRequests')
-        .items.select('Id', 'Title', 'AuditStatus', 'Priority')() as unknown as IAuditRequest[];
+        .items
+        .expand("Auditor").select(
+            'Id', 
+            'Title', 
+            'AuditStatus', 
+            'Priority',
+            'Auditor/Title',
+            'Created')() as unknown as IAuditRequest[];
+            console.log("Fetched audit requests: ", items);
       return items;
         /*
       const items: IAuditRequest[] = await this._sp.web.lists.getByTitle("AuditRequests").items.select("Id", "Title", "AuditStatus", "Priority")();

@@ -13,12 +13,14 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'AuditdashboardWebPartStrings';
 import Auditdashboard from './components/Auditdashboard';
+import AuditService from './Services/AuditService';
 
 
 export interface IAuditdashboardWebPartProps {
   description: string;
   title: string;
   sp: SPFI;
+  auditService: AuditService;
 }
 
 
@@ -27,6 +29,7 @@ export default class AuditdashboardWebPart extends BaseClientSideWebPart<IAuditd
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
   private _sp: SPFI;
+  private _auditService: AuditService;
 
   
   public render(): void {
@@ -39,7 +42,8 @@ export default class AuditdashboardWebPart extends BaseClientSideWebPart<IAuditd
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
-        sp: this._sp
+        sp: this._sp,
+        auditService: this._auditService
       }
     );
     //ReactDom.render(React.createElement(), this.domElement);
