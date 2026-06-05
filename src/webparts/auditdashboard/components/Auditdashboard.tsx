@@ -1,4 +1,14 @@
 import * as React from 'react';
+import { FontIcon } from '@fluentui/react/lib/Icon';
+import {
+  // ClipboardListRegular,
+  ClipboardTaskRegular,
+  ClockRegular,
+  CheckmarkCircleRegular,
+  ThumbDislikeRegular,
+  SearchRegular,
+  FilterRegular
+} from "@fluentui/react-icons";
 import styles from './Auditdashboard.module.scss';
 import type { IAuditdashboardProps } from './IAuditdashboardProps';
 import AuditService from '../Services/AuditService';
@@ -38,6 +48,42 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     }
   }
 
+  private getStatusClass(status: string): string {
+
+    switch (status?.toLowerCase()) {
+
+      case "approved":
+        return styles.approvedBadge;
+
+      case "rejected":
+        return styles.rejectedBadge;
+
+      case "pending":
+      case "open":
+        return styles.openBadge;
+
+      default:
+        return styles.openBadge;
+    }
+  }
+
+  private getPriorityClass(priority: string): string {
+
+    switch (priority?.toLowerCase()) {
+
+      case "high":
+        return styles.highBadge;
+
+      case "medium":
+        return styles.mediumBadge;
+
+      case "low":
+        return styles.lowBadge;
+
+      default:
+        return styles.lowBadge;
+    }
+  }
   public render(): React.ReactElement<IAuditdashboardProps> {
     const { title } = this.props;
 
@@ -68,76 +114,134 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     const pendingAudits = totalAudits - completedAudits - rejectedAudits;
 
     return (
+
       <div className={styles.auditDashboard}>
+        
+        <div className={styles.pageHeader}>
+          <h1>Audit Dashboard</h1>
+          <div className={styles.headerLine}></div>
+        </div>
 
-        <h1>{title}</h1>
+        <div className={styles.dashboardCards}>
 
-        <div className={styles.cardContainer}>
+          <div className={`${styles.card} ${styles.totalCard}`}>
+            <div className={styles.iconBox}>
+              <ClipboardTaskRegular />
+            </div>
 
-          <div className={styles.card}>
-            <h3>Total Audits</h3>
-            <p>{totalAudits}</p>
+            <div>
+              <h4>Total Audits</h4>
+              <span>{totalAudits}</span>
+            </div>
           </div>
 
-          <div className={styles.card}>
-            <h3>Pending</h3>
-            <p>{pendingAudits}</p>
+          <div className={`${styles.card} ${styles.pendingCard}`}>
+            <div className={styles.iconBox}>
+              <ClockRegular />
+            </div>
+
+            <div>
+              <h4>Pending</h4>
+              <span>{pendingAudits}</span>
+            </div>
           </div>
 
-          <div className={styles.card}>
-            <h3>Approved</h3>
-            <p>{completedAudits}</p>
+          <div className={`${styles.card} ${styles.approvedCard}`}>
+            <div className={styles.iconBox}>
+              <CheckmarkCircleRegular />
+            </div>
+
+            <div>
+              <h4>Approved</h4>
+              <span>{completedAudits}</span>
+            </div>
           </div>
 
-          <div className={styles.card}>
-            <h3>Rejected</h3>
-            <p>{rejectedAudits}</p>
+          <div className={`${styles.card} ${styles.rejectedCard}`}>
+            <div className={styles.iconBox}>
+              <ThumbDislikeRegular />
+            </div>
+
+            <div>
+              <h4>Rejected</h4>
+              <span>{rejectedAudits}</span>
+            </div>
           </div>
 
         </div>
 
-       <div></div>
-    <div>
-      <input type="text" placeholder="Search audits" />
-    </div>
-<div></div>
-    
-    <div>
-      <select>
-        <option>All</option>
-        <option>Pending</option>
-        <option>Approved</option>
-      </select>
-    </div>
+        <div className={styles.filterContainer}>
 
-        <h2>Audit Requests</h2>
+          <div className={styles.searchBox}>
+            <SearchRegular />
+            <input
+              type="text"
+              placeholder="Search audits..."
+            />
+          </div>
+
+          <div className={styles.statusFilter}>
+            <FilterRegular />
+
+            <select>
+              <option>All</option>
+              <option>Open</option>
+              <option>Approved</option>
+              <option>Rejected</option>
+            </select>
+          </div>
+
+        </div>
+
+        <h2 className={styles.sectionTitle}>
+          Audit Requests
+        </h2>
+
+
         <div>
           <table className={styles.auditTable}>
+
             <thead>
               <tr>
-                <th>Title</th> 
+                <th>Title</th>
                 <th>Auditor</th>
                 <th>Status</th>
                 <th>Priority</th>
               </tr>
             </thead>
+
             <tbody>
+
               {this.state.auditRequests.map((request) => (
-                
+
                 <tr key={request.Id}>
+
                   <td>{request.Title}</td>
-                   <td>{request.Auditor?.Title}</td>
-                  <td>{request.AuditStatus}</td>
-                  <td>{request.Priority}</td>
+
+                  <td>{request.Auditor?.Title}</td>
+
+                  <td>
+                    <span className={this.getStatusClass(request.AuditStatus)}>
+                      {request.AuditStatus}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className={this.getPriorityClass(request.Priority)}>
+                      {request.Priority}
+                    </span>
+                  </td>
+
                 </tr>
-                
+
               ))}
+
             </tbody>
+
           </table>
         </div>
-
       </div>
-      
+
 
 
     );
