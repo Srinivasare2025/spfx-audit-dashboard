@@ -13,13 +13,54 @@ import styles from './Auditdashboard.module.scss';
 import type { IAuditdashboardProps } from './IAuditdashboardProps';
 import AuditService from '../Services/AuditService';
 import { IAuditRequest } from '../models/IAuditRequest';
-
+import { StatusDonutChart } from './charts/StatusDonutChart';
+import { PriorityBarChart } from './charts/PriorityBarChart';
 
 interface IAuditdashboardState {
   auditRequests: IAuditRequest[];
   loading: boolean;
   errorMessage: string | null;
+  statusChartData:any[];
+ priorityChartData:any[];
 }
+/*
+const statusData = [
+
+  {
+    name: "Open",
+    value: 1
+  },
+
+  {
+    name: "Approved",
+    value: 3
+  },
+
+  {
+    name: "Rejected",
+    value: 4
+  }
+
+];
+*/
+const priorityChartData = [
+
+  {
+    name: 'High',
+    value: 4
+  },
+
+  {
+    name: 'Medium',
+    value: 3
+  },
+
+  {
+    name: 'Low',
+    value: 3
+  }
+
+];
 
 export default class Auditdashboard extends React.Component<IAuditdashboardProps, IAuditdashboardState> {
   constructor(props: IAuditdashboardProps) {
@@ -27,7 +68,9 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     this.state = {
       auditRequests: [],
       loading: true,
-      errorMessage: ''
+      errorMessage: '',
+      statusChartData: [],
+      priorityChartData: []
     };
   }
 
@@ -40,6 +83,59 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
         auditRequests,
         loading: false
       });
+
+      const totalAudits = this.state.auditRequests.length || 0;
+    const completedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
+    const rejectedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
+    const pendingAudits = totalAudits - completedAudits - rejectedAudits;
+
+    const priorityHigh = this.state.auditRequests.filter(request => request.Priority === "High").length || 0;
+    const priorityMedium = this.state.auditRequests.filter(request => request.Priority === "Medium").length || 0;
+    const priorityLow = this.state.auditRequests.filter(request => request.Priority === "Low").length || 0;
+    
+    console.log("Total Audits:", totalAudits);
+    console.log("Completed Audits:", completedAudits);
+    console.log("Rejected Audits:", rejectedAudits);
+    console.log("Pending Audits:", pendingAudits);
+    console.log("High Priority Audits:", priorityHigh);
+    console.log("Medium Priority Audits:", priorityMedium);
+    console.log("Low Priority Audits:", priorityLow);
+    const statusdata = [
+      {
+        name: "Open",
+        value: pendingAudits
+      },
+      {
+        name: "Approved",
+        value: completedAudits
+      },
+      {
+        name: "Rejected",
+        value: rejectedAudits
+      }
+    ];
+    
+    const prioritydata = [
+      {
+        name: 'High',
+        value: priorityHigh
+      },
+      {
+        name: 'Medium',
+        value: priorityMedium
+      },
+      {
+        name: 'Low',
+        value: priorityLow
+      }
+    ];
+
+    this.setState({
+      statusChartData: statusdata,
+      priorityChartData: prioritydata
+    });
+
+
     } catch (error) {
       this.setState({
         errorMessage: 'Error fetching audit requests.',
@@ -112,11 +208,13 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     const completedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
     const rejectedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
     const pendingAudits = totalAudits - completedAudits - rejectedAudits;
-
+    
+    
+    
     return (
 
       <div className={styles.auditDashboard}>
-        
+
         <div className={styles.pageHeader}>
           <h1>Audit Dashboard</h1>
           <div className={styles.headerLine}></div>
@@ -168,6 +266,26 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
             </div>
           </div>
 
+        </div>
+
+        <div className={styles.chartSection}>
+
+          <div className={styles.chartCard}>
+
+            <h3>Status Distribution</h3>
+
+            <StatusDonutChart
+              data={this.state.statusChartData}
+            />
+
+          </div>
+
+          <div className={styles.chartCard}>
+            <h3>Priority Distribution</h3>
+            <PriorityBarChart
+              data={this.state.priorityChartData}
+            />
+          </div>
         </div>
 
         <div className={styles.filterContainer}>
