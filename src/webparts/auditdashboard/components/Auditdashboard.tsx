@@ -22,6 +22,9 @@ interface IAuditdashboardState {
   errorMessage: string | null;
   statusChartData:any[];
  priorityChartData:any[];
+ searchText: string;
+ selectedStatus: string;
+ allAuditRequests: IAuditRequest[];
 }
 /*
 const statusData = [
@@ -70,7 +73,10 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
       loading: true,
       errorMessage: '',
       statusChartData: [],
-      priorityChartData: []
+      priorityChartData: [],
+      searchText: '',
+      selectedStatus: '',
+      allAuditRequests: []
     };
   }
 
@@ -81,7 +87,8 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
       const auditRequests = await auditService.getAuditRequests();
       this.setState({
         auditRequests,
-        loading: false
+        loading: false,
+        allAuditRequests: auditRequests
       });
 
       const totalAudits = this.state.auditRequests.length || 0;
@@ -144,6 +151,22 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     }
   }
 
+  private applyFilters(): void{
+    let filtered= [...this.state.allAuditRequests];
+     if(this.state.searchText){
+      filtered=filtered.filter(item => item.Title.toLowerCase()
+      .includes(this.state.searchText.toLowerCase()));
+     }
+     if(this.state.selectedStatus){
+      console.log("Selected Status:", this.state.selectedStatus);
+      if(this.state.selectedStatus==="All"){
+        filtered=this.state.allAuditRequests;
+      }else{
+      filtered=filtered.filter(item => item.AuditStatus === this.state.selectedStatus);
+     }
+     console.log("Filtered Audit Requests:", filtered);
+     this.setState({ auditRequests: filtered });
+  };
   private getStatusClass(status: string): string {
 
     switch (status?.toLowerCase()) {
@@ -295,15 +318,29 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
             <input
               type="text"
               placeholder="Search audits..."
+              value={this.state.searchText}
+              onChange={(e) => {
+                this.setState({ searchText: e.target.value }, () => {
+                  this.applyFilters();
+                });
+              }}
             />
           </div>
 
           <div className={styles.statusFilter}>
             <FilterRegular />
 
-            <select>
+            <select
+            value={this.state.selectedStatus}
+            onChange={(e) => { 
+              this.setState({ selectedStatus: e.target.value }, () => {
+                this.applyFilters();
+              })
+            }}
+          >
               <option>All</option>
               <option>Open</option>
+              <option>Pending Approval</option>
               <option>Approved</option>
               <option>Rejected</option>
             </select>
