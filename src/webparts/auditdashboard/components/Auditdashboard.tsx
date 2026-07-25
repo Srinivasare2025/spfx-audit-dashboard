@@ -19,6 +19,7 @@ import { DashboardHeader } from './Dashboard/DashboardHeader';
 import { DashboardCards } from './Dashboard/Dashboardcards';
 import { DashboardCharts } from './Dashboard/DashboardCharts';
 import { DashboardFilters } from './Dashboard/DashboardFilters';
+import { DashboardGrid } from './Dashboard/DashboardGrid';
 
 interface IAuditdashboardState {
   auditRequests: IAuditRequest[];
@@ -31,6 +32,14 @@ interface IAuditdashboardState {
   statusFilter: string;
 }
 
+interface IAuditdashboardUIstate {
+  auditRequests: IAuditRequest[];
+  selectedAuditRequest?: IAuditRequest | null;
+  isViewPanelOpen: boolean;
+  isEditPanelOpen: boolean;
+  isDeleteDialogOpen: boolean;
+  loading: boolean;
+}
 
 export default class Auditdashboard extends React.Component<IAuditdashboardProps, IAuditdashboardState> {
   constructor(props: IAuditdashboardProps) {
@@ -229,6 +238,19 @@ public async componentDidMount(): Promise <void> {
       return styles.lowBadge;
   }
 }
+
+  private onView = (request: IAuditRequest): void => {
+    console.log('View:', request);
+  }
+
+  private onEdit = (request: IAuditRequest): void => {
+    console.log('Edit:', request);
+  }
+
+  private onDelete = (request: IAuditRequest): void => {
+    console.log('Delete:', request);
+  }
+
   public render(): React.ReactElement < IAuditdashboardProps > {
   const { title } = this.props;
 
@@ -239,34 +261,6 @@ public async componentDidMount(): Promise <void> {
 if (this.state.errorMessage) {
   return <div>{this.state.errorMessage}</div>;
 }
-/*
-    return (
-      <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
-         <div className={styles.container}>
-          <h1>{title}</h1>
-          <div>
-            <h3>Total Audits</h3>
-            <p>10</p>
-          </div>
-          <div>
-            <h3>Pending</h3>
-            <p>4</p>
-          </div>
-          <div>
-            <h3>Completed</h3>
-            <p>6</p>
-          </div>
-        
-
-      <div className={styles.auditDashboard}>
-
-        <div className={styles.pageHeader}>
-          <h1>Audit Dashboard</h1>
-          <div className={styles.headerLine}></div>
-        </div>
-      </section>
-    );
-    */
 
 const totalAudits = this.state.filteredAuditRequests.length || 0;
 const completedAudits = this.state.filteredAuditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
@@ -308,7 +302,16 @@ return (
 
 
     <div>
-      <table className={styles.auditTable}>
+      <DashboardGrid
+        auditRequests={this.state.filteredAuditRequests}
+        getStatusClass={this.getStatusClass}
+        getPriorityClass={this.getPriorityClass}
+        onView={this.onView}
+        onEdit={this.onEdit}
+        onDelete={this.onDelete}
+      />
+
+      <table className={styles.auditTable} style={{display: 'none'}}>
 
         <thead>
           <tr>
