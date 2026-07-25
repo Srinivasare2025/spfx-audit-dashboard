@@ -212,6 +212,22 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     
     
     return (
+      <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
+         <div className={styles.container}>
+          <h1>{title}</h1>
+          <div>
+            <h3>Total Audits</h3>
+            <p>10</p>
+          </div>
+          <div>
+            <h3>Pending</h3>
+            <p>4</p>
+          </div>
+          <div>
+            <h3>Completed</h3>
+            <p>6</p>
+          </div>
+        
 
       <div className={styles.auditDashboard}>
 
