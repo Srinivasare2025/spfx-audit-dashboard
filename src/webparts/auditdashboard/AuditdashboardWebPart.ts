@@ -1,5 +1,8 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
+
+import type { SPFI } from './SPFIType';
+
 import { Version } from '@microsoft/sp-core-library';
 import {
   type IPropertyPaneConfiguration,
@@ -10,18 +13,25 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'AuditdashboardWebPartStrings';
 import Auditdashboard from './components/Auditdashboard';
-//import { IAuditdashboardProps } from './components/IAuditdashboardProps';
+import AuditService from './Services/AuditService';
+
 
 export interface IAuditdashboardWebPartProps {
   description: string;
   title: string;
+  sp: SPFI;
+  auditService: AuditService;
 }
+
 
 export default class AuditdashboardWebPart extends BaseClientSideWebPart<IAuditdashboardWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
+  private _sp: SPFI;
+  private _auditService: AuditService;
 
+  
   public render(): void {
     const element = React.createElement(
       Auditdashboard,
@@ -31,17 +41,30 @@ export default class AuditdashboardWebPart extends BaseClientSideWebPart<IAuditd
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName
+        userDisplayName: this.context.pageContext.user.displayName,
+        sp: this._sp,
+        auditService: this._auditService
       }
     );
-
+    //ReactDom.render(React.createElement(), this.domElement);
     ReactDom.render(element, this.domElement);
+    
   }
 
-  protected onInit(): Promise<void> {
+  protected async onInit(): Promise<void> {
+    await super.onInit();
+
+    const { spfi, SPFx } = await import(/* webpackChunkName: 'pnp-sp' */ '@pnp/sp');
+    await import(/* webpackChunkName: 'pnp-sp-webs' */ '@pnp/sp/webs');
+    await import(/* webpackChunkName: 'pnp-sp-lists' */ '@pnp/sp/lists');
+    await import(/* webpackChunkName: 'pnp-sp-items' */ '@pnp/sp/items');
+
+    this._sp = spfi().using(SPFx(this.context)) as unknown as SPFI;
+
     if (!this.properties.title) {
-    this.properties.title = "Audit Dashboard"; // default value
-  }
+      this.properties.title = "Audit Dashboard"; // default value
+    }
+
     return this._getEnvironmentMessage().then(message => {
       this._environmentMessage = message;
     });
