@@ -10,11 +10,10 @@ export interface IDashboardChartsProps {
 
 
 export const DashboardCharts: React.FunctionComponent<IDashboardChartsProps> = (props) => {
-return (
-    
+return (    
         <div className={styles.chartCard}>            
         <StatusDonutChart data={props.statusChartData} className={styles.chartDonut} />
         <PriorityBarChart data={props.priorityChartData} className={styles.chartBar} />
         </div>
-);
+        );
 }
