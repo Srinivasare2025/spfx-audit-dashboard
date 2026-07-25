@@ -14,6 +14,7 @@ export interface IStatusData {
 
 export interface IStatusChartProps {
     data: IStatusData[];
+    className?: string;
 }
 
 const COLORS = ['#4CAF50',"#2563eb", "#ef4444",  '#F44336',

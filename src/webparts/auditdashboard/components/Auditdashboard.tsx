@@ -15,52 +15,22 @@ import AuditService from '../Services/AuditService';
 import { IAuditRequest } from '../models/IAuditRequest';
 import { StatusDonutChart } from './charts/StatusDonutChart';
 import { PriorityBarChart } from './charts/PriorityBarChart';
+import { DashboardHeader } from './Dashboard/DashboardHeader';
+import { DashboardCards } from './Dashboard/Dashboardcards';
+import { DashboardCharts } from './Dashboard/DashboardCharts';
+import { DashboardFilters } from './Dashboard/DashboardFilters';
 
 interface IAuditdashboardState {
   auditRequests: IAuditRequest[];
   loading: boolean;
   errorMessage: string | null;
-  statusChartData:any[];
- priorityChartData:any[];
+  statusChartData: any[];
+  priorityChartData: any[];
+  filteredAuditRequests: IAuditRequest[];
+  searchText: string;
+  statusFilter: string;
 }
-/*
-const statusData = [
 
-  {
-    name: "Open",
-    value: 1
-  },
-
-  {
-    name: "Approved",
-    value: 3
-  },
-
-  {
-    name: "Rejected",
-    value: 4
-  }
-
-];
-*/
-const priorityChartData = [
-
-  {
-    name: 'High',
-    value: 4
-  },
-
-  {
-    name: 'Medium',
-    value: 3
-  },
-
-  {
-    name: 'Low',
-    value: 3
-  }
-
-];
 
 export default class Auditdashboard extends React.Component<IAuditdashboardProps, IAuditdashboardState> {
   constructor(props: IAuditdashboardProps) {
@@ -70,29 +40,108 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
       loading: true,
       errorMessage: '',
       statusChartData: [],
-      priorityChartData: []
-    };
-  }
+      priorityChartData: [],
+      filteredAuditRequests: [],
+      searchText: '',
+      statusFilter: 'All'    
+  };
+}
 
-  public async componentDidMount(): Promise<void> {
-    const auditService = new AuditService(this.props.sp);
-    try {
+private applyFilters(): void {
 
-      const auditRequests = await auditService.getAuditRequests();
-      this.setState({
+    const {
+
         auditRequests,
-        loading: false
-      });
 
-      const totalAudits = this.state.auditRequests.length || 0;
-    const completedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
-    const rejectedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
+        searchText,
+
+        statusFilter
+
+    } = this.state;
+
+    let filtered = auditRequests;
+
+    if (searchText) {
+
+        filtered = filtered.filter(item =>
+
+            item.Title.toLowerCase().includes(searchText.toLowerCase()) ||
+
+            item.Auditor?.Title.toLowerCase().includes(searchText.toLowerCase())
+
+        );
+
+    }
+
+    if (statusFilter !== "All") {
+
+        filtered = filtered.filter(item =>
+
+            item.AuditStatus === statusFilter
+
+        );
+
+    }
+
+    this.setState({
+
+        filteredAuditRequests: filtered
+
+    });
+
+}
+
+private onSearchTextChange = (text:string):void=>{
+
+    this.setState({
+
+        searchText:text
+
+    },()=>{
+
+        this.applyFilters();
+
+    });
+
+}
+
+private onStatusFilterChange=(status:string):void=>{
+
+    if(status==="Approved"){
+        status="Completed";
+    }
+    
+    this.setState({
+
+        statusFilter:status
+
+    },()=>{
+
+        this.applyFilters();
+
+    });
+
+}
+public async componentDidMount(): Promise <void> {
+  const auditService = new AuditService(this.props.sp);
+  try {
+
+    const auditRequests = await auditService.getAuditRequests();
+    this.setState({
+      auditRequests,
+      loading: false,
+      filteredAuditRequests: auditRequests
+    });
+
+    const totalAudits = this.state.filteredAuditRequests.length || 0;
+    const completedAudits = this.state.filteredAuditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
+    const rejectedAudits = this.state.filteredAuditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
     const pendingAudits = totalAudits - completedAudits - rejectedAudits;
 
-    const priorityHigh = this.state.auditRequests.filter(request => request.Priority === "High").length || 0;
-    const priorityMedium = this.state.auditRequests.filter(request => request.Priority === "Medium").length || 0;
-    const priorityLow = this.state.auditRequests.filter(request => request.Priority === "Low").length || 0;
-    
+    const priorityHigh = this.state.filteredAuditRequests.filter(request => request.Priority === "High").length || 0;
+    const priorityMedium = this.state.filteredAuditRequests.filter(request => request.Priority === "Medium").length || 0;
+    const priorityLow = this.state.filteredAuditRequests.filter(request => request.Priority === "Low").length || 0;
+
     console.log("Total Audits:", totalAudits);
     console.log("Completed Audits:", completedAudits);
     console.log("Rejected Audits:", rejectedAudits);
@@ -114,7 +163,7 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
         value: rejectedAudits
       }
     ];
-    
+
     const prioritydata = [
       {
         name: 'High',
@@ -136,234 +185,165 @@ export default class Auditdashboard extends React.Component<IAuditdashboardProps
     });
 
 
-    } catch (error) {
-      this.setState({
-        errorMessage: 'Error fetching audit requests.',
-        loading: false
-      });
-    }
+  } catch(error) {
+    this.setState({
+      errorMessage: 'Error fetching audit requests.',
+      loading: false
+    });
   }
+}
 
   private getStatusClass(status: string): string {
 
-    switch (status?.toLowerCase()) {
+  switch (status?.toLowerCase()) {
 
-      case "approved":
-        return styles.approvedBadge;
+    case "approved":
+      return styles.approvedBadge;
 
-      case "rejected":
-        return styles.rejectedBadge;
+    case "rejected":
+      return styles.rejectedBadge;
 
-      case "pending":
-      case "open":
-        return styles.openBadge;
+    case "pending":
+    case "open":
+      return styles.openBadge;
 
-      default:
-        return styles.openBadge;
-    }
+    default:
+      return styles.openBadge;
   }
+}
 
   private getPriorityClass(priority: string): string {
 
-    switch (priority?.toLowerCase()) {
+  switch (priority?.toLowerCase()) {
 
-      case "high":
-        return styles.highBadge;
+    case "high":
+      return styles.highBadge;
 
-      case "medium":
-        return styles.mediumBadge;
+    case "medium":
+      return styles.mediumBadge;
 
-      case "low":
-        return styles.lowBadge;
+    case "low":
+      return styles.lowBadge;
 
-      default:
-        return styles.lowBadge;
-    }
+    default:
+      return styles.lowBadge;
   }
-  public render(): React.ReactElement<IAuditdashboardProps> {
-    const { title } = this.props;
+}
+  public render(): React.ReactElement < IAuditdashboardProps > {
+  const { title } = this.props;
 
-    if (this.state.loading) {
-      return <div>Loading audit requests...</div>;
-    }
+  if(this.state.loading) {
+  return <div>Loading audit requests...</div>;
+}
 
-    if (this.state.errorMessage) {
-      return <div>{this.state.errorMessage}</div>;
-    }
-    /*
-        return (
-          <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
-            <div className={styles.welcome}>
-              <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
-              <h2>Well done, {escape(userDisplayName)}!</h2>
-              <div>{environmentMessage}</div>
-              <div>Web part property value: <strong>{escape(description)}</strong></div>
-              <div>Web part title: <strong>{escape(title)}</strong></div>
-            </div>
-          </section>
-        );
-        */
-
-    const totalAudits = this.state.auditRequests.length || 0;
-    const completedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
-    const rejectedAudits = this.state.auditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
-    const pendingAudits = totalAudits - completedAudits - rejectedAudits;
-    
-    
-    
+if (this.state.errorMessage) {
+  return <div>{this.state.errorMessage}</div>;
+}
+/*
     return (
-
-      <div className={styles.auditDashboard}>
-
-        <div className={styles.pageHeader}>
-          <h1>Audit Dashboard</h1>
-          <div className={styles.headerLine}></div>
+      <section className={`${styles.auditdashboard} ${hasTeamsContext ? styles.teams : ''}`}>
+        <div className={styles.welcome}>
+          <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
+          <h2>Well done, {escape(userDisplayName)}!</h2>
+          <div>{environmentMessage}</div>
+          <div>Web part property value: <strong>{escape(description)}</strong></div>
+          <div>Web part title: <strong>{escape(title)}</strong></div>
         </div>
-
-        <div className={styles.dashboardCards}>
-
-          <div className={`${styles.card} ${styles.totalCard}`}>
-            <div className={styles.iconBox}>
-              <ClipboardTaskRegular />
-            </div>
-
-            <div>
-              <h4>Total Audits</h4>
-              <span>{totalAudits}</span>
-            </div>
-          </div>
-
-          <div className={`${styles.card} ${styles.pendingCard}`}>
-            <div className={styles.iconBox}>
-              <ClockRegular />
-            </div>
-
-            <div>
-              <h4>Pending</h4>
-              <span>{pendingAudits}</span>
-            </div>
-          </div>
-
-          <div className={`${styles.card} ${styles.approvedCard}`}>
-            <div className={styles.iconBox}>
-              <CheckmarkCircleRegular />
-            </div>
-
-            <div>
-              <h4>Approved</h4>
-              <span>{completedAudits}</span>
-            </div>
-          </div>
-
-          <div className={`${styles.card} ${styles.rejectedCard}`}>
-            <div className={styles.iconBox}>
-              <ThumbDislikeRegular />
-            </div>
-
-            <div>
-              <h4>Rejected</h4>
-              <span>{rejectedAudits}</span>
-            </div>
-          </div>
-
-        </div>
-
-        <div className={styles.chartSection}>
-
-          <div className={styles.chartCard}>
-
-            <h3>Status Distribution</h3>
-
-            <StatusDonutChart
-              data={this.state.statusChartData}
-            />
-
-          </div>
-
-          <div className={styles.chartCard}>
-            <h3>Priority Distribution</h3>
-            <PriorityBarChart
-              data={this.state.priorityChartData}
-            />
-          </div>
-        </div>
-
-        <div className={styles.filterContainer}>
-
-          <div className={styles.searchBox}>
-            <SearchRegular />
-            <input
-              type="text"
-              placeholder="Search audits..."
-            />
-          </div>
-
-          <div className={styles.statusFilter}>
-            <FilterRegular />
-
-            <select>
-              <option>All</option>
-              <option>Open</option>
-              <option>Approved</option>
-              <option>Rejected</option>
-            </select>
-          </div>
-
-        </div>
-
-        <h2 className={styles.sectionTitle}>
-          Audit Requests
-        </h2>
-
-
-        <div>
-          <table className={styles.auditTable}>
-
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Auditor</th>
-                <th>Status</th>
-                <th>Priority</th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              {this.state.auditRequests.map((request) => (
-
-                <tr key={request.Id}>
-
-                  <td>{request.Title}</td>
-
-                  <td>{request.Auditor?.Title}</td>
-
-                  <td>
-                    <span className={this.getStatusClass(request.AuditStatus)}>
-                      {request.AuditStatus}
-                    </span>
-                  </td>
-
-                  <td>
-                    <span className={this.getPriorityClass(request.Priority)}>
-                      {request.Priority}
-                    </span>
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-        </div>
-      </div>
-
-
-
+      </section>
     );
+    */
+
+const totalAudits = this.state.filteredAuditRequests.length || 0;
+const completedAudits = this.state.filteredAuditRequests.filter(request => request.AuditStatus === "Completed").length || 0;
+const rejectedAudits = this.state.filteredAuditRequests.filter(request => request.AuditStatus === "Rejected").length || 0;
+const pendingAudits = totalAudits - completedAudits - rejectedAudits;
+
+
+
+return (
+
+  <div className={styles.auditDashboard}>
+
+    <DashboardHeader title="Audit Dashboard" />
+    <DashboardCards
+      totalAudits={totalAudits}
+      openAudits={pendingAudits}
+      approvedAudits={completedAudits}
+      rejectedAudits={rejectedAudits}
+    />
+
+    <div className={styles.chartSection}>
+      <h3>Status Distribution</h3>
+      <DashboardCharts
+        statusChartData={this.state.statusChartData}
+        priorityChartData={this.state.priorityChartData}
+      />
+    </div>
+
+    <DashboardFilters
+      searchText={this.state.searchText}
+      statusFilter={this.state.statusFilter}
+      onSearchTextChange={this.onSearchTextChange}
+      onStatusFilterChange={this.onStatusFilterChange}
+    />
+
+    <h2 className={styles.sectionTitle}>
+      Audit Requests
+    </h2>
+
+
+    <div>
+      <table className={styles.auditTable}>
+
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Auditor</th>
+            <th>Status</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {this.state.filteredAuditRequests.map((request) => (
+
+            <tr key={request.Id}>
+
+              <td>{request.Title}</td>
+
+              <td>{request.Auditor?.Title}</td>
+
+              <td>
+                <span className={this.getStatusClass(request.AuditStatus)}>
+                  {request.AuditStatus}
+                </span>
+              </td>
+
+              <td>
+                <span className={this.getPriorityClass(request.Priority)}>
+                  {request.Priority}
+                </span>
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+
+
+);
   }
 
 
 }
+function componentDidMount() {
+  throw new Error('Function not implemented.');
+}
+
