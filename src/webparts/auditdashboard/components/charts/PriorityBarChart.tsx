@@ -17,6 +17,7 @@ export interface IPriorityData {
 
 export interface IPriorityBarChartProps {
     data: IPriorityData[];
+    className?: string;
 }
 
 export const PriorityBarChart = (
